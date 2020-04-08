@@ -8,9 +8,6 @@ class District(BaseModel):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30))
     count = db.Column(db.Integer, default=0)
-    updated_on = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
 
     def __init__(self, name, count):
         self.name = name
@@ -22,3 +19,7 @@ class District(BaseModel):
     @classmethod
     def get_all(cls):
         return cls.query.all()
+
+    @classmethod
+    def find_by_name(cls, name):
+        return cls.query.filter_by(name=name).first()

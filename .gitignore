@@ -1,5 +1,5 @@
 __pycache__
 venv
-.pyc
-.db
-.env
+*.pyc
+*.db
+*.env

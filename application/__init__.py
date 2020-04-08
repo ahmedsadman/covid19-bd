@@ -12,6 +12,11 @@ def create_app(config):
 
     with app.app_context():
         from . import routes
+        from application.models import Meta
 
         db.create_all()
+
+        # create meta
+        Meta.create_meta()
+
         return app

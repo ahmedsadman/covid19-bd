@@ -3,23 +3,31 @@ from application.models import District, Meta
 from application.provider import DataProvider
 
 
-@app.route("/respond")
-def respond():
-    req = request.get_json()
-    d = District(req["name"], req["count"])
-    d.save()
-    return {"message": "Ok"}
+@app.route("/", methods=["GET"])
+def info():
+    return {
+        "title": "Covid-19 District Wise Data (Bangladesh) - API For Public usage",
+        "description": "This pulls data from IEDCR published reports",
+        "author_name": "Sadman Muhib Samyo",
+        "author_github": "github.com/ahmedsadman",
+    }
 
 
 @app.route("/district", methods=["GET"])
 def get_district_data():
     data = District.get_all()
     obj = {}
+    total_infected = 0
     for d in data:
         d = d.serialize()
         obj[d["name"]] = {"id": d["id"], "count": d["count"]}
+        total_infected += d["count"]
 
-    return {"data": obj, "updated_on": Meta.get_meta("updated_on").value}
+    return {
+        "total_infected": total_infected,
+        "data": obj,
+        "updated_on": Meta.get_meta("updated_on").value,
+    }
 
 
 @app.route("/update", methods=["POST"])

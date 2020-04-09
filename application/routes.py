@@ -16,11 +16,11 @@ def info():
 @app.route("/district", methods=["GET"])
 def get_district_data():
     data = District.get_all()
-    obj = {}
+    obj = []
     total_infected = 0
     for d in data:
         d = d.serialize()
-        obj[d["name"]] = {"id": d["id"], "count": d["count"]}
+        obj.append(d)
         total_infected += d["count"]
 
     return {

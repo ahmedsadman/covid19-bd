@@ -25,33 +25,38 @@ def get_district_data():
 @app.route("/update", methods=["POST"])
 def update():
     # check if an update is in progress
-    if Meta.is_updating():
-        return {"message": "An update is already in progress"}
+    try:
+        if Meta.is_updating():
+            return {"message": "An update is already in progress"}
 
-    # set updating state to true
-    Meta.set_updating("True")
+        # set updating state to true
+        Meta.set_updating("True")
 
-    # download and get updated data
-    provider = DataProvider("https://www.iedcr.gov.bd/district_wise_report.pdf")
-    new_data = (
-        provider.run_update()
-    )  # returns list of tuple as [...(districtName, Count)]
+        # download and get updated data
+        provider = DataProvider()
+        new_data = (
+            provider.run_update()
+        )  # returns list of tuple as [...(districtName, Count)]
 
-    # check the data against database records and update as necessary
-    for pair in new_data:
-        district = District.find_by_name(pair[0])
-        if district:
-            if district.count != pair[1]:
-                district.count = pair[1]
-                district.save()
-        else:
-            new_district = District(pair[0], pair[1])
-            new_district.save()
+        # check the data against database records and update as necessary
+        for pair in new_data:
+            district = District.find_by_name(pair[0])
+            if district:
+                if district.count != pair[1]:
+                    district.count = pair[1]
+                    district.save()
+            else:
+                new_district = District(pair[0], pair[1])
+                new_district.save()
 
-    # set updating state to False as update is finished
-    Meta.set_updating("False")
+        # set updating state to False as update is finished
+        Meta.set_updating("False")
 
-    # set last updated time to now
-    Meta.set_last_updated()
+        # set last updated time to now
+        Meta.set_last_updated()
 
-    return {"message": "Updated"}
+        return {"message": "Updated"}
+    except Exception as e:
+        print("Exception is", e)
+        Meta.set_updating("False")
+        return {"message": "Update Error"}, 500

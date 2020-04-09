@@ -1,12 +1,13 @@
 import os
 import json
+import math
 from tabula import read_pdf
 import requests
 
 
 class DataProvider:
-    def __init__(self, url, dest=os.path.join("application", "provider", "mydata.pdf")):
-        self.url = url
+    def __init__(self, dest=os.path.join("application", "provider", "mydata.pdf")):
+        self.url = os.environ.get("REPORT_URL")
         self.dest = dest
 
     def download(self):
@@ -21,8 +22,10 @@ class DataProvider:
         data = df.to_dict()
         result = []
 
-        for (l, f) in zip(data["Location"].values(), data["Freq."].values()):
-            pair = (l, f)
+        for (l, f) in zip(data["District/City"].values(), data["No. of case"].values()):
+            if math.isnan(f) or (type(l) == float and math.isnan(l)):
+                continue
+            pair = (l, int(f))
             result.append(pair)
 
         return result

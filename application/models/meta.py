@@ -34,7 +34,6 @@ class Meta(BaseModel):
     @classmethod
     def is_updating(cls):
         meta = cls.query.filter_by(name="updating").first()
-        print("is updating", meta.value)
         return meta.value == "True"
 
     @classmethod

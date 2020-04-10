@@ -1,6 +1,7 @@
 from flask import current_app as app, request
 from application.models import District, Meta
 from application.provider import DataProvider
+from application.tasks import sync_data
 
 
 @app.route("/", methods=["GET"])
@@ -11,6 +12,13 @@ def info():
         "author_name": "Sadman Muhib Samyo",
         "author_github": "github.com/ahmedsadman",
     }
+
+
+@app.route("/update", methods=["POST"])
+def update():
+    app.scheduler.add_job(sync_data, args=[])
+    print("DONE")
+    return {"message": "Accepted"}, 202
 
 
 @app.route("/district", methods=["GET"])

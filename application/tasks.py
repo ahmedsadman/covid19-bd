@@ -12,9 +12,7 @@ app = create_app(Config)
 sched = BlockingScheduler()
 
 
-@sched.scheduled_job("interval", minutes=30)
 def sync_data():
-    """Fetch latest data from IEDCR reports"""
     with app.app_context():
         try:
             print("Starting sync...")
@@ -27,6 +25,7 @@ def sync_data():
 
             # download and get updated data
             provider = DataProvider()
+            print("provider created")
             new_data = (
                 provider.run_update()
             )  # returns list of tuple as [...(districtName, Count)]
@@ -59,4 +58,11 @@ def sync_data():
             print("Error occured while syncing: ", e)
 
 
-sched.start()
+@sched.scheduled_job("interval", minutes=30)
+def sched_sync_data():
+    """Fetch latest data from IEDCR reports"""
+    sync_data()
+
+
+if __name__ == "__main__":
+    sched.start()

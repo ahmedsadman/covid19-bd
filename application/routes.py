@@ -71,4 +71,4 @@ def update():
     except Exception as e:
         print("Exception is", e)
         Meta.set_updating("False")
-        return {"message": "Update Error"}, 500
+        return {"error": str(e)}, 500

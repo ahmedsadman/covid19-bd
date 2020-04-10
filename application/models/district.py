@@ -1,4 +1,5 @@
 from datetime import datetime
+from sqlalchemy import desc
 from application import db
 from application.models import BaseModel
 
@@ -18,7 +19,7 @@ class District(BaseModel):
 
     @classmethod
     def get_all(cls):
-        return cls.query.all()
+        return cls.query.order_by(desc(cls.count)).all()
 
     @classmethod
     def find_by_name(cls, name):

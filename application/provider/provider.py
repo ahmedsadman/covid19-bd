@@ -7,12 +7,13 @@ import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 import time
+import urllib.parse as urlparser
 
 
 class DataProvider:
     def __init__(self, dest=os.path.join("application", "provider", "mydata.pdf")):
         self.website = "http://www.iedcr.gov.bd"
-        self.url = self.website + self.get_url()
+        self.url = urlparser.urljoin(self.website, self.get_url())
         self.dest = dest
 
     def get_url(self):
@@ -20,7 +21,7 @@ class DataProvider:
         a_text = os.environ.get("REPORT_TEXT")  # text to search in anchor tag
 
         s = requests.Session()
-        retries = Retry(total=8, backoff_factor=1, status_forcelist=[502, 503, 504])
+        retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504])
         s.mount("http://", HTTPAdapter(max_retries=retries))
 
         page = s.get(self.website)
@@ -34,7 +35,7 @@ class DataProvider:
 
     def download(self):
         s = requests.Session()
-        retries = Retry(total=8, backoff_factor=1, status_forcelist=[502, 503, 504])
+        retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504])
         s.mount("http://", HTTPAdapter(max_retries=retries))
         data = s.get(self.url)
 
@@ -47,7 +48,7 @@ class DataProvider:
         data = df.to_dict()
         result = []
 
-        for (l, f) in zip(data["District/City"].values(), data["No. of case"].values()):
+        for (l, f) in zip(data["Unnamed: 1"].values(), data["No. of case"].values()):
             if math.isnan(f) or (type(l) == float and math.isnan(l)):
                 continue
             pair = (l, int(f))

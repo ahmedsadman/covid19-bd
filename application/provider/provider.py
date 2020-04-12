@@ -48,7 +48,7 @@ class DataProvider:
         data = df.to_dict()
         result = []
 
-        for (l, f) in zip(data["Unnamed: 1"].values(), data["No. of case"].values()):
+        for (l, f) in zip(data["District/City"].values(), data["No. of case"].values()):
             if math.isnan(f) or (type(l) == float and math.isnan(l)):
                 continue
             pair = (l, int(f))

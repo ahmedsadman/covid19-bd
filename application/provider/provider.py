@@ -44,13 +44,27 @@ class DataProvider:
 
     def process_data(self, page=1):
         df = read_pdf(self.dest, pages=1)
-        df = df[0]
-        data = df.to_dict()
+        data = df[0].to_dict()
         result = []
 
-        for (l, f) in zip(data["District/City"].values(), data["No. of case"].values()):
-            if math.isnan(f) or (type(l) == float and math.isnan(l)):
+        # 2nd and 3rd columns contain the data we're interested in
+        keys = list(data.keys())
+        district_label = keys[1]
+        count_label = keys[2]
+
+        for (l, f) in zip(data[district_label].values(), data[count_label].values()):
+            if (type(f) == float and math.isnan(f)) or (
+                type(l) == float and math.isnan(l)
+            ):
+                # ignore NaN values (result of bad parsing)
                 continue
+
+            # check the count can be converted to float, otherwise it's invalid
+            try:
+                int(f)
+            except ValueError:
+                continue
+
             pair = (l, int(f))
             result.append(pair)
 

@@ -17,10 +17,14 @@ def create_app(config):
     with app.app_context():
         from . import routes
         from application.models import Meta
+        from application.tasks import sync_data
 
         db.create_all()
 
         # create meta
         Meta.create_meta()
+
+        # try to sync data on server start
+        sync_data()
 
         return app

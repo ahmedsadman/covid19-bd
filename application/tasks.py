@@ -62,5 +62,5 @@ if __name__ == "__main__":
 
     # schedule the job on 15:00, 17:00 and 20:00 UTC time everyday
     # push the app context, because some parts of the task needs the context
-    sched.add_job(lambda: run_sync_data(app), "cron", hour="15, 16, 17, 20")
+    sched.add_job(lambda: run_sync_data(app), "cron", hour="12, 13, 14, 15, 16, 17, 20")
     sched.start()

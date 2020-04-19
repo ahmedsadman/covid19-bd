@@ -42,24 +42,16 @@ class DataProvider:
         with open(self.dest, "wb") as f:
             f.write(data.content)
 
-    def process_data(self, page=1):
-        df = read_pdf(self.dest, pages=1)
-        data = df[0].to_dict()
+    def populate(self, district_label, count_label, data):
+        """Populate the result array with processed data"""
         result = []
-
-        # 2nd and 3rd columns contain the data we're interested in
-        keys = list(data.keys())
-        district_label = keys[1]
-        count_label = keys[2]
-
         for (l, f) in zip(data[district_label].values(), data[count_label].values()):
             if (type(f) == float and math.isnan(f)) or (
                 type(l) == float and math.isnan(l)
             ):
-                # ignore NaN values (result of bad parsing)
                 continue
 
-            # check the count can be converted to float, otherwise it's invalid
+            # check the count can be converted to int, otherwise it's invalid
             try:
                 int(f)
             except ValueError:
@@ -67,6 +59,23 @@ class DataProvider:
 
             pair = (l, int(f))
             result.append(pair)
+        return result
+
+    def process_data(self, page=1):
+        df = read_pdf(self.dest, pages=1)
+        data = df[0].to_dict()
+        keys = list(data.keys())
+
+        # 2nd and 3rd columns contain the data we're interested in
+        district_label = keys[1]
+        count_label = keys[2]
+        result = self.populate(district_label, count_label, data)
+
+        # in 2nd pass we look at 1st and 2nd columns, as it might also
+        # contain some missed data (due to bad parsing/bad PDF formatting)
+        district_label = keys[0]
+        count_label = keys[1]
+        result += self.populate(district_label, count_label, data)  # concat array
 
         return result
 

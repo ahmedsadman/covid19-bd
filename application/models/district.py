@@ -9,13 +9,20 @@ class District(BaseModel):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30))
     count = db.Column(db.Integer, default=0)
+    prev_count = db.Column(db.Integer, default=0)
 
     def __init__(self, name, count):
         self.name = name
         self.count = count
+        self.prev_count = count
 
     def serialize(self):
-        return {"id": self.id, "name": self.name, "count": self.count}
+        return {
+            "id": self.id,
+            "name": self.name,
+            "count": self.count,
+            "prev_count": self.prev_count,
+        }
 
     @classmethod
     def get_all(cls):

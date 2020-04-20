@@ -28,6 +28,7 @@ def sync_data():
             district = District.find_by_name(pair[0])
             if district:
                 if district.count != pair[1]:
+                    district.prev_count = district.count
                     district.count = pair[1]
                     district.save()
                     has_updated = True
@@ -60,7 +61,7 @@ if __name__ == "__main__":
     app = create_app(Config)
     sched = BlockingScheduler()
 
-    # schedule the job on 15:00, 17:00 and 20:00 UTC time everyday
-    # push the app context, because some parts of the task needs the context
-    sched.add_job(lambda: run_sync_data(app), "cron", hour="12, 13, 14, 15, 16, 17, 20")
+    # schedule the job to be run every hour
+    # push the app context, because app context is required for background jobs
+    sched.add_job(lambda: run_sync_data(app), "interval", hours=1)
     sched.start()

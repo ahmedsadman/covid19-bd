@@ -2,6 +2,7 @@
 from application import create_app
 from config import Config
 from apscheduler.schedulers.blocking import BlockingScheduler
+from datetime import datetime
 from application.models import District, Meta
 from application.provider import DataProvider
 
@@ -21,6 +22,10 @@ def sync_data():
         new_data = (
             provider.run_update()
         )  # returns list of tuple as [...(districtName, Count)]
+        last_updated = Meta.get_meta("updated_on").value
+        last_updated = datetime.strptime(
+            last_updated, "%Y-%m-%d %H:%M:%S.%f"
+        )  # str -> datetime obj
 
         # flag to monitor if fetched data has changed
         has_updated = False
@@ -38,8 +43,11 @@ def sync_data():
                     has_updated = True
                 else:
                     # count did not change
-                    # - make count and prev_count same
-                    district.prev_count = district.count
+                    # - make count and prev_count same only if last change was 1 day ago
+                    update_delta = datetime.utcnow() - last_updated
+                    if update_delta.days >= 1:
+                        district.prev_count = district.count
+
                 district.save()
             else:
                 new_district = District(pair[0], pair[1])

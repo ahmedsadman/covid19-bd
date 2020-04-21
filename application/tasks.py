@@ -22,16 +22,25 @@ def sync_data():
             provider.run_update()
         )  # returns list of tuple as [...(districtName, Count)]
 
-        # check the data against database records and update as necessary
+        # flag to monitor if fetched data has changed
         has_updated = False
+
+        # check the data against database records and update as necessary
         for pair in new_data:
             district = District.find_by_name(pair[0])
             if district:
                 if district.count != pair[1]:
+                    # count changed from last record
+                    # - save previous count
+                    # - update new count
                     district.prev_count = district.count
                     district.count = pair[1]
-                    district.save()
                     has_updated = True
+                else:
+                    # count did not change
+                    # - make count and prev_count same
+                    district.prev_count = district.count
+                district.save()
             else:
                 new_district = District(pair[0], pair[1])
                 new_district.save()

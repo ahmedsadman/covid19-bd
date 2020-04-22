@@ -66,15 +66,14 @@ class DataProvider:
         data = df[0].to_dict()
         keys = list(data.keys())
 
-        # 2nd and 3rd columns contain the data we're interested in
-        district_label = keys[1]
-        count_label = keys[2]
+        district_label = keys[int(os.environ.get("DISTRICT_LABEL_INDEX"))]
+        count_label = keys[int(os.environ.get("COUNT_LABEL_INDEX"))]
         result = self.populate(district_label, count_label, data)
 
-        # in 2nd pass we look at 1st and 2nd columns, as it might also
+        # we also look at some alternatve columns, as it might also
         # contain some missed data (due to bad parsing/bad PDF formatting)
-        district_label = keys[0]
-        count_label = keys[1]
+        district_label = keys[int(os.environ.get("DISTRICT_LABEL_INDEX_ALT"))]
+        count_label = keys[int(os.environ.get("COUNT_LABEL_INDEX_ALT"))]
         result += self.populate(district_label, count_label, data)  # concat array
 
         return result

@@ -19,7 +19,7 @@ def get_district_data():
 
     return {
         "data": [d.serialize() for d in data],
-        "updated_on": Meta.get_meta("updated_on").value,
+        "updated_on": Meta.get_last_district_sync(),
     }
 
 

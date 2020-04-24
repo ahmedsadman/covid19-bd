@@ -10,23 +10,20 @@ from application.provider import DataProvider
 def sync_district_data():
     """Fetch latest data from IEDCR reports"""
     try:
-        print("Starting Districts sync...")
-        if Meta.is_updating():
-            print("A sync is already in progress")
+        print("Starting Sync: Districts")
+        if Meta.is_district_syncing():
+            print("A district sync is already in progress")
             return
 
         # set updating state to true
-        Meta.set_updating("True")
+        Meta.set_district_syncing(True)
 
         # download and get updated data
         provider = DataProvider()
         new_data = (
             provider.sync_district_data()
         )  # returns list of tuple as [...(districtName, Count)]
-        last_updated = Meta.get_meta("updated_on").value
-        last_updated = datetime.strptime(
-            last_updated, "%Y-%m-%d %H:%M:%S.%f"
-        )  # str -> datetime obj
+        last_updated = Meta.get_last_district_sync()
 
         # flag to monitor if fetched data has changed
         has_updated = False
@@ -56,40 +53,40 @@ def sync_district_data():
                 has_updated = True
 
         # set updating state to False as update is finished
-        Meta.set_updating("False")
+        Meta.set_district_syncing(False)
 
         if has_updated:
             # set last updated time to now
-            Meta.set_last_updated()
-            print("District Sync Complete: Fetched latest data")
+            Meta.set_last_district_sync()
+            print("Sync Complete: Districts (already up to date)")
             return
-        print("District Sync Complete: Already up to date")
+        print("Sync Complete: Districts (fetched new data)")
     except Exception as e:
-        Meta.set_updating("False")
-        print("Error occured while syncing: ", e)
+        Meta.set_district_syncing(False)
+        print("Error in Sync (District): ", e)
 
 
 def sync_stats():
     """Fetch latest stats from IEDCR website"""
     try:
-        print("Starting Stats sync...")
+        print("Starting Sync: Stats")
+        if Meta.is_stats_syncing():
+            print("A stats sync is already in progress")
+            return
+
         provider = DataProvider()
         data = provider.get_stats()
 
         stat = Stat.get()
-
-        if not stat:
-            print("Stat data not found. Creating...")
-            stat = Stat()
 
         # iteratively update the data
         for attr, value in data.items():
             setattr(stat, attr, value)
 
         stat.save()
-        print("Stats sync complete")
+        print("Sync Complete: Stats")
     except Exception as e:
-        print("Error occured on Stats update: ", e)
+        print("Error in Sync (Stats): ", e)
 
 
 def run_sync_district(app):

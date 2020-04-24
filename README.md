@@ -45,17 +45,17 @@ The success response returns data (JSON) in the following format:
 
 ```
 {
-    data: [
+    "data": [
         ...
         {
-            id: 1,
-            name: "Dhaka",
-            count: 700,
-            prev_count: 600
+            "id": 1,
+            "name": "Dhaka",
+            "count": 700,
+            "prev_count": 600
         }
         ...
     ],
-    updated_on: "2020-04-23 12:04:23.912559"
+    "updated_on": "Fri, 24 Apr 2020 18:20:59 GMT"
 }
 ```
 
@@ -67,7 +67,7 @@ More features such as area-wise report for Dhaka city might be added later
 
 ## Development
 
-Feel free to contribute and make the API for feature-rich. For this to work, you have to have the following Buildpacks:
+Feel free to contribute and make the API feature-rich. For this to work, you have to have the following Buildpacks:
 
 -   Python
 -   Java (required by some dependencies)

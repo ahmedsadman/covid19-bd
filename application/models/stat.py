@@ -42,4 +42,8 @@ class Stat(BaseModel):
 
     @classmethod
     def get(cls):
-        return cls.query.first()
+        stat = cls.query.first()
+        if not stat:
+            stat = Stat()
+            stat.save()
+        return stat

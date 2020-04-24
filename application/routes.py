@@ -16,15 +16,8 @@ def info():
 @app.route("/district", methods=["GET"])
 def get_district_data():
     data = District.get_all()
-    obj = []
-    total_infected = 0
-    for d in data:
-        d = d.serialize()
-        obj.append(d)
-        total_infected += d["count"]
 
     return {
-        "total_infected": total_infected,
-        "data": obj,
+        "data": [d.serialize() for d in data],
         "updated_on": Meta.get_meta("updated_on").value,
     }

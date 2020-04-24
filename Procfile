@@ -1,2 +1,2 @@
-web: uwsgi uwsgi.ini
+web: gunicorn app:app
 clock: python application/tasks.py

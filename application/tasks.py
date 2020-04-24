@@ -74,6 +74,8 @@ def sync_stats():
             print("A stats sync is already in progress")
             return
 
+        Meta.set_stats_syncing(True)
+
         provider = DataProvider()
         data = provider.get_stats()
 
@@ -84,8 +86,10 @@ def sync_stats():
             setattr(stat, attr, value)
 
         stat.save()
+        Meta.set_stats_syncing(False)
         print("Sync Complete: Stats")
     except Exception as e:
+        Meta.set_stats_syncing(False)
         print("Error in Sync (Stats): ", e)
 
 

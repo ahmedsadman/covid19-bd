@@ -30,6 +30,10 @@ The success response returns data (JSON) in the following format:
         "last24": 4,
         "total": 112
     },
+    "test": {
+        "last24": 4,
+        "total": 112
+    },
     "updated_on": "Fri, 24 Apr 2020 18:20:59 GMT"
 }
 

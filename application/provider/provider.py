@@ -25,6 +25,8 @@ class DataProvider:
 
         positive_24 = rows[3].find_all("td")[-1].text
         positive_total = rows[4].find_all("td")[-1].text
+        test_total = rows[2].find_all("td")[-1].text
+        test_24 = rows[1].find_all("td")[-1].text
 
         centers = soup.select("center>h3")
         centers = [c.text for c in centers if c.text.isdigit()]
@@ -41,6 +43,8 @@ class DataProvider:
             "recovered_total": int(recovered_total),
             "death_24": int(death_24),
             "death_total": int(death_total),
+            "test_total": int(test_total),
+            "test_24": int(test_24),
         }
 
         return data_dict

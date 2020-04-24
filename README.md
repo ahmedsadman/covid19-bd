@@ -10,7 +10,34 @@ As it is public API, you're free to use it for your projects. In your work, you 
 
 ## Documentation
 
-It's pretty simple for now, you just have to hit the following URL to get the latest data:
+### Stats
+
+> https://corona-bd.herokuapp.com/stats
+
+The success response returns data (JSON) in the following format:
+
+```
+{
+    "death": {
+        "last24": 4,
+        "total": 131
+    },
+    "positive": {
+        "last24": 503,
+        "total": 4689
+    },
+    "recovered": {
+        "last24": 4,
+        "total": 112
+    },
+    "updated_on": "Fri, 24 Apr 2020 18:20:59 GMT"
+}
+
+```
+
+The field `updated_on` shows time in UTC/GMT
+
+### District Counts
 
 > https://corona-bd.herokuapp.com/district
 

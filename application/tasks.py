@@ -3,13 +3,14 @@ from application import create_app
 from config import Config
 from apscheduler.schedulers.blocking import BlockingScheduler
 from datetime import datetime
-from application.models import District, Meta
+from application.models import District, Meta, Stat
 from application.provider import DataProvider
 
 
-def sync_data():
+def sync_district_data():
+    """Fetch latest data from IEDCR reports"""
     try:
-        print("Starting sync...")
+        print("Starting Districts sync...")
         if Meta.is_updating():
             print("A sync is already in progress")
             return
@@ -20,7 +21,7 @@ def sync_data():
         # download and get updated data
         provider = DataProvider()
         new_data = (
-            provider.run_update()
+            provider.sync_district_data()
         )  # returns list of tuple as [...(districtName, Count)]
         last_updated = Meta.get_meta("updated_on").value
         last_updated = datetime.strptime(
@@ -60,18 +61,45 @@ def sync_data():
         if has_updated:
             # set last updated time to now
             Meta.set_last_updated()
-            print("Sync Complete: Fetched latest data")
+            print("District Sync Complete: Fetched latest data")
             return
-        print("Sync Complete: Already up to date")
+        print("District Sync Complete: Already up to date")
     except Exception as e:
         Meta.set_updating("False")
         print("Error occured while syncing: ", e)
 
 
-def run_sync_data(app):
-    """Fetch latest data from IEDCR reports"""
+def sync_stats():
+    """Fetch latest stats from IEDCR website"""
+    try:
+        print("Starting Stats sync...")
+        provider = DataProvider()
+        data = provider.get_stats()
+
+        stat = Stat.get()
+
+        if not stat:
+            print("Stat data not found. Creating...")
+            stat = Stat()
+
+        # iteratively update the data
+        for attr, value in data.items():
+            setattr(stat, attr, value)
+
+        stat.save()
+        print("Stats sync complete")
+    except Exception as e:
+        print("Error occured on Stats update: ", e)
+
+
+def run_sync_district(app):
     with app.app_context():
-        sync_data()
+        sync_district_data()
+
+
+def run_sync_stats(app):
+    with app.app_context():
+        sync_stats()
 
 
 if __name__ == "__main__":
@@ -80,5 +108,6 @@ if __name__ == "__main__":
 
     # schedule the job to be run every hour
     # push the app context, because app context is required for background jobs
-    sched.add_job(lambda: run_sync_data(app), "interval", hours=1)
+    sched.add_job(lambda: run_sync_district(app), "interval", hours=2)
+    sched.add_job(lambda: run_sync_stats(app), "interval", minutes=65)
     sched.start()

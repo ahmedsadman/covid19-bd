@@ -16,6 +16,35 @@ class DataProvider:
         self.url = urlparser.urljoin(self.website, self.get_url())
         self.dest = dest
 
+    def get_stats(self):
+        """Fetch the latest statistics like total positive cases, deaths etc"""
+        page = requests.get(self.website)
+        soup = bs(page.content, "html.parser")
+        table = soup.find("table")
+        rows = table.find_all("tr")
+
+        positive_24 = rows[3].find_all("td")[-1].text
+        positive_total = rows[4].find_all("td")[-1].text
+
+        centers = soup.select("center>h3")
+        centers = [c.text for c in centers if c.text.isdigit()]
+
+        recovered_24 = centers[0]
+        recovered_total = centers[1]
+        death_24 = centers[2]
+        death_total = centers[3]
+
+        data_dict = {
+            "positive_24": int(positive_24),
+            "positive_total": int(positive_total),
+            "recovered_24": int(recovered_24),
+            "recovered_total": int(recovered_total),
+            "death_24": int(death_24),
+            "death_total": int(death_total),
+        }
+
+        return data_dict
+
     def get_url(self):
         """Fetch the URL which points to the report file"""
         a_text = os.environ.get("REPORT_TEXT")  # text to search in anchor tag
@@ -81,7 +110,7 @@ class DataProvider:
     def cleanup(self):
         os.remove(self.dest)
 
-    def run_update(self):
+    def sync_district_data(self):
         print("LINK: ", self.url)
         self.download()
         data = self.process_data()

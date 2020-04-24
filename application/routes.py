@@ -1,5 +1,5 @@
 from flask import current_app as app, request
-from application.models import District, Meta
+from application.models import District, Meta, Stat
 from application.provider import DataProvider
 
 
@@ -21,3 +21,9 @@ def get_district_data():
         "data": [d.serialize() for d in data],
         "updated_on": Meta.get_meta("updated_on").value,
     }
+
+
+@app.route("/stats", methods=["GET"])
+def get_stats():
+    stat = Stat.get()
+    return stat.serialize()

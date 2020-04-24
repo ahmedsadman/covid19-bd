@@ -17,7 +17,7 @@ def create_app(config):
     with app.app_context():
         from . import routes
         from application.models import Meta
-        from application.tasks import sync_data
+        from application.tasks import sync_district_data, sync_stats
 
         db.create_all()
 
@@ -25,6 +25,7 @@ def create_app(config):
         Meta.create_meta()
 
         # try to sync data on server start
-        sync_data()
+        sync_district_data()
+        sync_stats()
 
         return app

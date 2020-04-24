@@ -6,32 +6,35 @@ This is a REST-based public API for accessing district-wise data for Covid-19 in
 
 ## Usage Permissions
 
-As it is public API, you're free to use it for your projects. In your work, you must explicitly provide credits and also a link to this repository - this would be more than enough for most of you folks. For more detailed information please check LICENSE file.
+As it is public API, you're free to use it for your projects. In your work, you must explicitly provide credits and also a link to this repository. For more detailed information please check LICENSE file.
 
 ## Documentation
 
 It's pretty simple for now, you just have to hit the following URL to get the latest data:
 
-```
-https://corona-bd.herokuapp.com/district
-```
+> https://corona-bd.herokuapp.com/district
 
-The success response returns data in the following format:
+The success response returns data (JSON) in the following format:
 
 ```
-data: [
-    ...
-    {
-        id: 1,
-        name: "Dhaka",
-        count: 700,
-        prev_count: 600
-    }
-    ...
-]
+{
+    data: [
+        ...
+        {
+            id: 1,
+            name: "Dhaka",
+            count: 700,
+            prev_count: 600
+        }
+        ...
+    ],
+    updated_on: "2020-04-23 12:04:23.912559"
+}
 ```
 
-The `prev_count` (previous count) keeps track of the last record before updating to the new counts
+> **WARNING**: Do not depend on the `id` field, as it might change over time. You're advised to work with `name` directly.
+
+The `prev_count` (previous count) keeps track of the last record before updating to the new counts. The `updated_on` field is recorded based on UTC time (not Bangladesh time which is UTC+6)
 
 More features such as area-wise report for Dhaka city might be added later
 
@@ -42,4 +45,4 @@ Feel free to contribute and make the API for feature-rich. For this to work, you
 -   Python
 -   Java (required by some dependencies)
 
-Install the Python requirements `pip install -r requirements.txt` and you're good to go.
+Install the Python requirements `pip install -r requirements.txt` and you're good to go. You also have to set some environment variables in `.env` file in the root directory. Please check the `provider` module to know more about these variables.

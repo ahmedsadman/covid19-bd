@@ -16,8 +16,10 @@ class Meta(BaseModel):
 
     @classmethod
     def create_meta(cls):
-        meta = cls()
-        meta.save()
+        meta = cls.get()
+        if not meta:
+            meta = cls()
+            meta.save()
 
     @classmethod
     def set_district_syncing(cls, state):

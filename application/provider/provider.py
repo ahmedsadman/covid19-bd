@@ -31,16 +31,14 @@ class DataProvider:
         centers = soup.select("center>h3")
         centers = [c.text for c in centers if c.text.isdigit()]
 
-        recovered_24 = centers[0]
-        recovered_total = centers[1]
-        death_24 = centers[2]
-        death_total = centers[3]
+        # recovered_24 = centers[0]
+        # recovered_total = centers[1]
+        death_24 = centers[0]
+        death_total = centers[1]
 
         data_dict = {
             "positive_24": int(positive_24),
             "positive_total": int(positive_total),
-            "recovered_24": int(recovered_24),
-            "recovered_total": int(recovered_total),
             "death_24": int(death_24),
             "death_total": int(death_total),
             "test_total": int(test_total),

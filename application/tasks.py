@@ -58,9 +58,9 @@ def sync_district_data():
         if has_updated:
             # set last updated time to now
             Meta.set_last_district_sync()
-            print("Sync Complete: Districts (already up to date)")
+            print("Sync Complete: Districts (fetched new data)")
             return
-        print("Sync Complete: Districts (fetched new data)")
+        print("Sync Complete: Districts (already up-to-date)")
     except Exception as e:
         Meta.set_district_syncing(False)
         print("Error in Sync (District): ", e)

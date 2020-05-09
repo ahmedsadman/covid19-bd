@@ -26,6 +26,10 @@ The success response returns data (JSON) in the following format:
         "last24": 503,
         "total": 4689
     },
+    "recovered": {
+        "last24": 191,
+        "total": 2101
+    },
     "test": {
         "last24": 4,
         "total": 112

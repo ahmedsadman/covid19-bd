@@ -12,37 +12,32 @@ import urllib.parse as urlparser
 
 class DataProvider:
     def __init__(self, dest=os.path.join("application", "provider", "mydata.pdf")):
-        self.website = "http://www.iedcr.gov.bd"
-        self.url = urlparser.urljoin(self.website, self.get_url())
+        self.district_data_source = "http://www.iedcr.gov.bd"
+        self.stats_data_source = "https://corona.gov.bd"
+        self.url = urlparser.urljoin(self.district_data_source, self.get_url())
         self.dest = dest
+        self.trans_table = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
 
     def get_stats(self):
         """Fetch the latest statistics like total positive cases, deaths etc"""
-        page = requests.get(self.website)
+        page = requests.get("https://corona.gov.bd")
         soup = bs(page.content, "html.parser")
-        table = soup.find("table")
-        rows = table.find_all("tr")
+        counts = soup.select("h1 > b")
 
-        positive_24 = rows[3].find_all("td")[-1].text
-        positive_total = rows[4].find_all("td")[-1].text
-        test_total = rows[2].find_all("td")[-1].text
-        test_24 = rows[1].find_all("td")[-1].text
-
-        centers = soup.select("center>h3")
-        centers = [c.text for c in centers if c.text.isdigit()]
-
-        # recovered_24 = centers[0]
-        # recovered_total = centers[1]
-        death_24 = centers[0]
-        death_total = centers[1]
+        # process counts - replace bangla digits with english
+        for i in range(len(counts)):
+            counts[i] = counts[i].text.translate(self.trans_table)
+            counts[i] = int(counts[i])
 
         data_dict = {
-            "positive_24": int(positive_24),
-            "positive_total": int(positive_total),
-            "death_24": int(death_24),
-            "death_total": int(death_total),
-            "test_total": int(test_total),
-            "test_24": int(test_24),
+            "positive_24": counts[0],
+            "positive_total": counts[1],
+            "death_24": counts[2],
+            "death_total": counts[3],
+            "recovered_24": counts[4],
+            "recovered_total": counts[5],
+            "test_24": counts[6],
+            "test_total": counts[7],
         }
 
         return data_dict
@@ -55,7 +50,7 @@ class DataProvider:
         retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504])
         s.mount("http://", HTTPAdapter(max_retries=retries))
 
-        page = s.get(self.website)
+        page = s.get(self.district_data_source)
 
         if page.status_code == 200:
             soup = bs(page.content, "html.parser")

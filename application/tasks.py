@@ -7,12 +7,12 @@ from application.models import District, Meta, Stat
 from application.provider import DataProvider
 
 
-def sync_district_data():
+def sync_district_data(app):
     """Fetch latest data from IEDCR reports"""
     try:
-        print("Starting Sync: Districts")
+        app.logger.info("Starting sync of district data")
         if Meta.is_district_syncing():
-            print("A district sync is already in progress")
+            app.logger.info("A district sync is already in progress")
             return
 
         # set updating state to true
@@ -55,23 +55,24 @@ def sync_district_data():
         # set updating state to False as update is finished
         Meta.set_district_syncing(False)
 
+        app.logger.debug(f"Has updated = {has_updated}")
         if has_updated:
             # set last updated time to now
             Meta.set_last_district_sync()
-            print("Sync Complete: Districts (fetched new data)")
+            app.logger.info("District sync complete (fetched new data)")
             return
-        print("Sync Complete: Districts (already up-to-date)")
+        app.logger.info("District sync complete (already up-to-date)")
     except Exception as e:
         Meta.set_district_syncing(False)
-        print("Error in Sync (District): ", e)
+        app.logger.error(f"District sync failed with error: {e}")
 
 
-def sync_stats():
+def sync_stats(app):
     """Fetch latest stats from IEDCR website"""
     try:
-        print("Starting Sync: Stats")
+        app.logger.info("Starting sync of stats data")
         if Meta.is_stats_syncing():
-            print("A stats sync is already in progress")
+            app.logger.info("A stats sync is already in progress")
             return
 
         Meta.set_stats_syncing(True)
@@ -87,20 +88,20 @@ def sync_stats():
 
         stat.save()
         Meta.set_stats_syncing(False)
-        print("Sync Complete: Stats")
+        app.logger.info("Stats sync complete")
     except Exception as e:
         Meta.set_stats_syncing(False)
-        print("Error in Sync (Stats): ", e)
+        app.logger.error(f"Stats sync failed with error: {e}")
 
 
 def run_sync_district(app):
     with app.app_context():
-        sync_district_data()
+        sync_district_data(app)
 
 
 def run_sync_stats(app):
     with app.app_context():
-        sync_stats()
+        sync_stats(app)
 
 
 if __name__ == "__main__":

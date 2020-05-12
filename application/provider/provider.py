@@ -8,6 +8,7 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 import time
 import urllib.parse as urlparser
+from flask import current_app as app
 
 
 class DataProvider:
@@ -40,6 +41,7 @@ class DataProvider:
             "test_total": counts[7],
         }
 
+        app.logger.debug(data_dict)
         return data_dict
 
     def get_url(self):
@@ -108,7 +110,7 @@ class DataProvider:
         os.remove(self.dest)
 
     def sync_district_data(self):
-        print("LINK: ", self.url)
+        app.logger.debug(f"Report URL = {self.url}")
         self.download()
         data = self.process_data()
         self.cleanup()

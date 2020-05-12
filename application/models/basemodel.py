@@ -1,3 +1,4 @@
+from flask import current_app as app
 from application import db
 
 
@@ -10,7 +11,7 @@ class BaseModel(db.Model):
             db.session.add(self)
             db.session.commit()
         except Exception as e:
-            print(e)
+            app.logger.error(f"Error while saving to database: {e}")
 
     def delete(self):
         """delete the item from database"""
@@ -18,4 +19,4 @@ class BaseModel(db.Model):
             db.session.delete(self)
             db.session.commit()
         except Exception as e:
-            print(e)
+            app.logger.error(f"Error while deleting from database: {e}")

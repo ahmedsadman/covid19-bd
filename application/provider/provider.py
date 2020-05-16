@@ -23,7 +23,7 @@ class DataProvider:
         """Fetch the latest statistics like total positive cases, deaths etc"""
         page = requests.get("https://corona.gov.bd")
         soup = bs(page.content, "html.parser")
-        counts = soup.select("h1 > b")
+        counts = soup.select(".live-update-box-wrap-h1>b")
 
         # process counts - replace bangla digits with english
         for i in range(len(counts)):

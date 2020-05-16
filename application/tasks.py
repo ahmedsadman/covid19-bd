@@ -5,14 +5,15 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from datetime import datetime
 from application.models import District, Meta, Stat
 from application.provider import DataProvider
+from application.logger import Logger
 
 
-def sync_district_data(app):
+def sync_district_data(logger):
     """Fetch latest data from IEDCR reports"""
     try:
-        app.logger.info("Starting sync of district data")
+        logger.info("Starting sync of district data")
         if Meta.is_district_syncing():
-            app.logger.info("A district sync is already in progress")
+            logger.info("A district sync is already in progress")
             return
 
         # set updating state to true
@@ -55,24 +56,24 @@ def sync_district_data(app):
         # set updating state to False as update is finished
         Meta.set_district_syncing(False)
 
-        app.logger.debug(f"Has updated = {has_updated}")
+        logger.debug(f"Has updated = {has_updated}")
         if has_updated:
             # set last updated time to now
             Meta.set_last_district_sync()
-            app.logger.info("District sync complete (fetched new data)")
+            logger.info("District sync complete (fetched new data)")
             return
-        app.logger.info("District sync complete (already up-to-date)")
+        logger.info("District sync complete (already up-to-date)")
     except Exception as e:
         Meta.set_district_syncing(False)
-        app.logger.error(f"District sync failed with error: {e}")
+        logger.error(f"District sync failed with error: {e}")
 
 
-def sync_stats(app):
+def sync_stats(logger):
     """Fetch latest stats from IEDCR website"""
     try:
-        app.logger.info("Starting sync of stats data")
+        logger.info("Starting sync of stats data")
         if Meta.is_stats_syncing():
-            app.logger.info("A stats sync is already in progress")
+            logger.info("A stats sync is already in progress")
             return
 
         Meta.set_stats_syncing(True)
@@ -88,28 +89,29 @@ def sync_stats(app):
 
         stat.save()
         Meta.set_stats_syncing(False)
-        app.logger.info("Stats sync complete")
+        logger.info("Stats sync complete")
     except Exception as e:
         Meta.set_stats_syncing(False)
-        app.logger.error(f"Stats sync failed with error: {e}")
+        logger.error(f"Stats sync failed with error: {e}")
 
 
-def run_sync_district(app):
+def run_sync_district(logger):
     with app.app_context():
-        sync_district_data(app)
+        sync_district_data(logger)
 
 
-def run_sync_stats(app):
+def run_sync_stats(logger):
     with app.app_context():
-        sync_stats(app)
+        sync_stats(logger)
 
 
 if __name__ == "__main__":
     app = create_app(Config)
+    logger = Logger.create_logger(__name__)
     sched = BlockingScheduler()
 
     # schedule the job to be run every hour
     # push the app context, because app context is required for background jobs
-    sched.add_job(lambda: run_sync_district(app), "interval", minutes=30)
-    sched.add_job(lambda: run_sync_stats(app), "interval", minutes=18)
+    sched.add_job(lambda: run_sync_district(logger), "interval", minutes=30)
+    sched.add_job(lambda: run_sync_stats(logger), "interval", minutes=18)
     sched.start()

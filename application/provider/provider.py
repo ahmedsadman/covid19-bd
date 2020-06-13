@@ -16,21 +16,21 @@ class DataProvider:
 
     def __init__(self, dest=os.path.join("application", "provider", "mydata.pdf")):
         self.district_data_source = "http://www.iedcr.gov.bd"
-        self.stats_data_source = "https://corona.gov.bd"
+        self.stats_data_source = "https://corona.gov.bd/lang/en"
         self.url = urlparser.urljoin(self.district_data_source, self.get_url())
         self.dest = dest
         self.trans_table = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
 
     def get_stats(self):
         """Fetch the latest statistics like total positive cases, deaths etc"""
-        page = requests.get("https://corona.gov.bd")
+        page = requests.get(self.stats_data_source)
         soup = bs(page.content, "html.parser")
         counts = soup.select(".live-update-box-wrap-h1>b")
 
         # process counts - replace bangla digits with english
         for i in range(len(counts)):
-            counts[i] = counts[i].text.translate(self.trans_table)
-            counts[i] = int(counts[i])
+            # counts[i] = counts[i].text.translate(self.trans_table)
+            counts[i] = int(counts[i].text)
 
         data_dict = {
             "positive_24": counts[0],

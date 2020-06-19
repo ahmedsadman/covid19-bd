@@ -1,7 +1,6 @@
 import os
 import json
 import math
-from tabula import read_pdf
 from bs4 import BeautifulSoup as bs
 import requests
 from requests.adapters import HTTPAdapter

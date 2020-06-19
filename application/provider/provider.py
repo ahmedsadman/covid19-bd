@@ -14,11 +14,9 @@ from application.logger import Logger
 class DataProvider:
     logger = Logger.create_logger(__name__)
 
-    def __init__(self, dest=os.path.join("application", "provider", "mydata.pdf")):
+    def __init__(self):
         self.district_data_source = "http://www.iedcr.gov.bd"
         self.stats_data_source = "https://corona.gov.bd/lang/en"
-        self.url = None  # points to IEDCR pdf url
-        self.dest = dest
         self.trans_table = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
 
     def get_stats(self):
@@ -46,8 +44,8 @@ class DataProvider:
         self.logger.debug(data_dict)
         return data_dict
 
-    def get_url(self):
-        """Fetch the URL which points to the report file"""
+    def get_report_url(self):
+        """Fetch the URL which points to the report file for district data"""
         a_text = os.environ.get("REPORT_TEXT")  # text to search in anchor tag
 
         s = requests.Session()
@@ -63,58 +61,43 @@ class DataProvider:
 
         return None
 
-    def download(self):
-        s = requests.Session()
-        retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504])
-        s.mount("http://", HTTPAdapter(max_retries=retries))
-        data = s.get(self.url)
-
-        with open(self.dest, "wb") as f:
-            f.write(data.content)
-
-    def populate(self, district_label, count_label, data):
-        """Populate the result array with processed data"""
+    def parse_district_data(self, url):
+        """Parse the Google Sheets to get district data"""
+        page = requests.get(url)
+        soup = bs(page.content, "html.parser")
+        table = soup.find("table")
+        rows = table.find_all("tr")
         result = []
-        for (l, f) in zip(data[district_label].values(), data[count_label].values()):
-            if (type(f) == float and math.isnan(f)) or (
-                type(l) == float and math.isnan(l)
-            ):
+
+        for rindex, row in enumerate(rows):
+            # ignore first two rows because both are headers
+            if rindex < 2:
                 continue
 
-            # check the count can be converted to int, otherwise it's invalid
-            try:
-                int(f)
-            except ValueError:
-                continue
+            data = []
+            for col in row.find_all("td"):
+                # ignore division names column
+                if col.has_attr("rowspan"):
+                    continue
+                data.append(self.sanitize(col.text))
 
-            pair = (l, int(f))
-            result.append(pair)
-        return result
-
-    def process_data(self, page=1):
-        df = read_pdf(self.dest, pages=1)
-        data = df[0].to_dict()
-        keys = list(data.keys())
-
-        district_label = keys[int(os.environ.get("DISTRICT_LABEL_INDEX"))]
-        count_label = keys[int(os.environ.get("COUNT_LABEL_INDEX"))]
-        result = self.populate(district_label, count_label, data)
-
-        # we also look at some alternatve columns, as it might also
-        # contain some missed data (due to bad parsing/bad PDF formatting)
-        district_label = keys[int(os.environ.get("DISTRICT_LABEL_INDEX_ALT"))]
-        count_label = keys[int(os.environ.get("COUNT_LABEL_INDEX_ALT"))]
-        result += self.populate(district_label, count_label, data)  # concat array
+            result.append(data)
 
         return result
 
-    def cleanup(self):
-        os.remove(self.dest)
+    def sanitize(self, s):
+        """sanitize string:
+        - by replacing invalid chars with correct ones
+        - converting to int if applicable"""
+        mapping = {"â€™": "'"}
+        for key, val in mapping.items():
+            s = s.replace(key, val)
+
+        if s.isdigit():
+            s = int(s)
+        return s
 
     def sync_district_data(self):
-        self.url = urlparser.urljoin(self.district_data_source, self.get_url())
-        self.logger.debug(f"Report URL = {self.url}")
-        self.download()
-        data = self.process_data()
-        self.cleanup()
-        return data
+        url = urlparser.urljoin(self.district_data_source, self.get_report_url())
+        self.logger.debug(f"Report URL = {url}")
+        return self.parse_district_data(url)

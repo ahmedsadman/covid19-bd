@@ -34,7 +34,7 @@ def create_app(config):
         Meta.create_meta()
 
         # try to sync data on server start
-        sync_district_data(app.logger)
+        # sync_district_data(app.logger)
         sync_stats(app.logger)
 
         return app

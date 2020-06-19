@@ -112,6 +112,6 @@ if __name__ == "__main__":
 
     # schedule the job to be run every hour
     # push the app context, because app context is required for background jobs
-    sched.add_job(lambda: run_sync_district(logger), "interval", minutes=30)
+    # sched.add_job(lambda: run_sync_district(logger), "interval", minutes=30)
     sched.add_job(lambda: run_sync_stats(logger), "interval", minutes=18)
     sched.start()

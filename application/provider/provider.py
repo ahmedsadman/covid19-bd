@@ -17,7 +17,7 @@ class DataProvider:
     def __init__(self, dest=os.path.join("application", "provider", "mydata.pdf")):
         self.district_data_source = "http://www.iedcr.gov.bd"
         self.stats_data_source = "https://corona.gov.bd/lang/en"
-        self.url = urlparser.urljoin(self.district_data_source, self.get_url())
+        self.url = None  # points to IEDCR pdf url
         self.dest = dest
         self.trans_table = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
 
@@ -112,6 +112,7 @@ class DataProvider:
         os.remove(self.dest)
 
     def sync_district_data(self):
+        self.url = urlparser.urljoin(self.district_data_source, self.get_url())
         self.logger.debug(f"Report URL = {self.url}")
         self.download()
         data = self.process_data()

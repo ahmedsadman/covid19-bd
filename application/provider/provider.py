@@ -14,8 +14,8 @@ class DataProvider:
     logger = Logger.create_logger(__name__)
 
     def __init__(self):
-        self.district_data_source = "http://www.iedcr.gov.bd"
         self.stats_data_source = "https://corona.gov.bd/lang/en"
+        self.district_report_url = os.environ.get("REPORT_URL")
         self.trans_table = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
 
     def get_stats(self):
@@ -43,34 +43,17 @@ class DataProvider:
         self.logger.debug(data_dict)
         return data_dict
 
-    def get_report_url(self):
-        """Fetch the URL which points to the report file for district data"""
-        a_text = os.environ.get("REPORT_TEXT")  # text to search in anchor tag
-
-        s = requests.Session()
-        retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504])
-        s.mount("http://", HTTPAdapter(max_retries=retries))
-
-        page = s.get(self.district_data_source)
-
-        if page.status_code == 200:
-            soup = bs(page.content, "html.parser")
-            link = soup.find("a", text=a_text)["href"]
-            return link
-
-        return None
-
-    def parse_district_data(self, url):
+    def parse_district_data(self):
         """Parse the Google Sheets to get district data"""
-        page = requests.get(url)
+        page = requests.get(self.district_report_url)
         soup = bs(page.content, "html.parser")
         table = soup.find("table")
         rows = table.find_all("tr")
         result = []
 
         for rindex, row in enumerate(rows):
-            # ignore first two rows because both are headers
-            if rindex < 2:
+            # ignore first two rows and last row because they are headers/totals
+            if rindex < 2 or rindex == len(rows) - 1:
                 continue
 
             data = []
@@ -97,6 +80,4 @@ class DataProvider:
         return s
 
     def sync_district_data(self):
-        url = urlparser.urljoin(self.district_data_source, self.get_report_url())
-        self.logger.debug(f"Report URL = {url}")
-        return self.parse_district_data(url)
+        return self.parse_district_data()

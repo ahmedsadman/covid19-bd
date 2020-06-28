@@ -1,7 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-import logging
 import os
 from application.logger import Logger
 
@@ -17,12 +16,6 @@ def create_app(config):
     cors.init_app(app)
     db.init_app(app)
 
-    # configure logger
-    log_level = os.environ.get("LOG_LEVEL") or "INFO"
-    logging.basicConfig(
-        level=log_level, format=Logger.get_format(log_level),
-    )
-
     with app.app_context():
         from . import routes
         from application.models import Meta
@@ -34,7 +27,7 @@ def create_app(config):
         Meta.create_meta()
 
         # try to sync data on server start
-        sync_district_data(app.logger)
-        sync_stats(app.logger)
+        sync_district_data()
+        sync_stats()
 
         return app

@@ -16,7 +16,10 @@ class Logger:
     @classmethod
     def create_logger(cls, name, level=os.environ.get("LOG_LEVEL") or "INFO"):
         logger = logging.getLogger(name)
-        format = cls.get_format(level)
         logger.setLevel(level)
-        logging.basicConfig(format=format)
+        logFormatter = logging.Formatter(cls.get_format(level))
+        consoleHandler = logging.StreamHandler()
+        consoleHandler.setFormatter(logFormatter)
+
+        logger.addHandler(consoleHandler)
         return logger

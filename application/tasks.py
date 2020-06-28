@@ -8,9 +8,10 @@ from application.provider import DataProvider
 from application.logger import Logger
 
 
-def sync_district_data(logger):
+def sync_district_data():
     """Fetch latest data from IEDCR reports"""
     try:
+        logger = Logger.create_logger(__name__)
         logger.info("Starting sync of district data")
         if Meta.is_district_syncing():
             logger.info("A district sync is already in progress")
@@ -68,9 +69,10 @@ def sync_district_data(logger):
         logger.error(f"District sync failed with error: {e}")
 
 
-def sync_stats(logger):
+def sync_stats():
     """Fetch latest stats from IEDCR website"""
     try:
+        logger = Logger.create_logger(__name__)
         logger.info("Starting sync of stats data")
         if Meta.is_stats_syncing():
             logger.info("A stats sync is already in progress")
@@ -95,23 +97,22 @@ def sync_stats(logger):
         logger.error(f"Stats sync failed with error: {e}")
 
 
-def run_sync_district(logger):
+def run_sync_district():
     with app.app_context():
-        sync_district_data(logger)
+        sync_district_data()
 
 
-def run_sync_stats(logger):
+def run_sync_stats():
     with app.app_context():
-        sync_stats(logger)
+        sync_stats()
 
 
 if __name__ == "__main__":
     app = create_app(Config)
-    logger = Logger.create_logger(__name__)
     sched = BlockingScheduler()
 
     # schedule the job to be run every hour
     # push the app context, because app context is required for background jobs
-    sched.add_job(lambda: run_sync_district(logger), "interval", minutes=30)
-    sched.add_job(lambda: run_sync_stats(logger), "interval", minutes=18)
+    sched.add_job(run_sync_district, "interval", minutes=30)
+    sched.add_job(run_sync_stats, "interval", minutes=18)
     sched.start()

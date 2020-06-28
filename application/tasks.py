@@ -11,7 +11,20 @@ from application.logger import Logger
 def sync_district_data():
     """Fetch latest data from IEDCR reports"""
     try:
-        logger = Logger.create_logger(__name__)
+        # For some unknown reason, Logger.createLogger(__name__),
+        # where __name__ == "application.tasks" doesn't bind
+        # the handler. After some debugging, I found that anything
+        # prefixing "application.*" doesn't work. According to
+        # Logger.create_logger(), it assumes that a handler is
+        # already binded, although it's not.
+
+        # For the other parts it doesn't cause any problem. For example,
+        # when the logger is created inside DataProvider module, the name
+        # "application.provider.*" doesn't cause any problem.
+
+        # This is a weird issue. I will look into this later. For now,
+        # I will name it "tasks"
+        logger = Logger.create_logger("tasks")
         logger.info("Starting sync of district data")
         if Meta.is_district_syncing():
             logger.info("A district sync is already in progress")
@@ -72,7 +85,7 @@ def sync_district_data():
 def sync_stats():
     """Fetch latest stats from IEDCR website"""
     try:
-        logger = Logger.create_logger(__name__)
+        logger = Logger.create_logger("tasks")
         logger.info("Starting sync of stats data")
         if Meta.is_stats_syncing():
             logger.info("A stats sync is already in progress")

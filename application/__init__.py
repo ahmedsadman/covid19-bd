@@ -16,6 +16,12 @@ def create_app(config):
     cors.init_app(app)
     db.init_app(app)
 
+    @app.before_first_request
+    def run_update():
+        # try to sync data
+        sync_district_data()
+        sync_stats()
+
     with app.app_context():
         from . import routes
         from application.models import Meta
@@ -25,9 +31,5 @@ def create_app(config):
 
         # create meta
         Meta.create_meta()
-
-        # try to sync data on server start
-        sync_district_data()
-        sync_stats()
 
         return app

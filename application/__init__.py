@@ -1,12 +1,14 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from flask_migrate import Migrate
 import os
 from application.logger import Logger
 
 # globally accessible variables
 db = SQLAlchemy()
 cors = CORS()
+migrate = Migrate()
 
 
 def create_app(config):
@@ -15,6 +17,7 @@ def create_app(config):
 
     cors.init_app(app)
     db.init_app(app)
+    migrate.init_app(app, db)
 
     @app.before_first_request
     def run_update():

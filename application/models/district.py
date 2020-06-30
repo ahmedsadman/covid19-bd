@@ -10,11 +10,13 @@ class District(BaseModel):
     name = db.Column(db.String(30))
     count = db.Column(db.Integer, default=0)
     prev_count = db.Column(db.Integer, default=0)
+    last_update = db.Column(db.DateTime, nullable=True)
 
-    def __init__(self, name, count):
+    def __init__(self, name, count, last_update):
         self.name = name
         self.count = count
         self.prev_count = count
+        self.last_update = last_update
 
     def serialize(self):
         return {

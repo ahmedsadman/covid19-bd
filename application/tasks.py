@@ -2,7 +2,7 @@
 from application import create_app
 from config import Config
 from apscheduler.schedulers.blocking import BlockingScheduler
-from datetime import datetime
+from datetime import datetime, timedelta
 from application.models import District, Meta, Stat
 from application.provider import DataProvider
 from application.logger import Logger
@@ -38,32 +38,39 @@ def sync_district_data():
         new_data = (
             provider.sync_district_data()
         )  # returns list of tuple as [...(districtName, Count)]
-        last_updated = Meta.get_last_district_sync()
 
         # flag to monitor if fetched data has changed
         has_updated = False
 
         # check the data against database records and update as necessary
-        for pair in new_data:
-            district = District.find_by_name(pair[0])
+        for (district_name, new_count, last_update) in new_data:
+            # last_update time is in UTC +6
+            # parse the time
+            last_update = parse_time(last_update, logger)
+
+            district = District.find_by_name(district_name)
+
             if district:
-                if district.count != pair[1]:
+                if district.count != new_count:
                     # count changed from last record
                     # - save previous count
                     # - update new count
                     district.prev_count = district.count
-                    district.count = pair[1]
+                    district.count = new_count
                     has_updated = True
                 else:
                     # count did not change
                     # - make count and prev_count same only if last change was 1 day ago
-                    update_delta = datetime.utcnow() - last_updated
+                    last_update_utc = last_update - timedelta(hours=6)
+                    update_delta = datetime.utcnow() - last_update_utc
+
                     if update_delta.days >= 1:
                         district.prev_count = district.count
 
+                district.last_update = last_update
                 district.save()
             else:
-                new_district = District(pair[0], pair[1])
+                new_district = (district_name, new_count, last_update)
                 new_district.save()
                 has_updated = True
 
@@ -80,6 +87,22 @@ def sync_district_data():
     except Exception as e:
         Meta.set_district_syncing(False)
         logger.error(f"District sync failed with error: {e}")
+
+
+def parse_time(time, logger):
+    sep = "." if "." in time else "/"
+    try:
+        # for format like "30.06.20" or "30/06/20"
+        time = datetime.strptime(time, f"%d{sep}%m{sep}%y")
+    except Exception as e:
+        # try for format like "30.06.2020"
+        time = datetime.strptime(time, f"%d{sep}%m{sep}%Y")
+    except Exception as e:
+        # no matching found, fallback to current time
+        logger.warn(f"No parsing format found for {time}")
+        time = datetime.utcnow()
+
+    return time
 
 
 def sync_stats():

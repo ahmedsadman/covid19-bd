@@ -60,11 +60,14 @@ def sync_district_data():
                     has_updated = True
                 else:
                     # count did not change
-                    # - make count and prev_count same only if last change was 1 day ago
+                    # - make count and prev_count same only if last change was 3 days ago
                     last_update_utc = last_update - timedelta(hours=6)
                     update_delta = datetime.utcnow() - last_update_utc
 
-                    if update_delta.days >= 1:
+                    if update_delta.days > 3:
+                        # district-level update takes on average 3+ days
+                        # so it's more appropriate to keep the current prev_count
+                        # for 3+ days
                         district.prev_count = district.count
 
                 district.last_update = last_update

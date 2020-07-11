@@ -45,8 +45,13 @@ def sync_district_data():
 
         # check the data against database records and update as necessary
         for pair in new_data:
+            # ignore blank data
+            if pair[0] == "" or pair[1] == "":
+                continue
+
             district = District.find_by_name(pair[0])
             if district:
+
                 if district.count != pair[1]:
                     # count changed from last record
                     # - save previous count

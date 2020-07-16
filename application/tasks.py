@@ -43,6 +43,9 @@ def sync_district_data():
         # flag to monitor if fetched data has changed
         has_updated = False
 
+        # differnece with current time and last updated time
+        update_delta = datetime.utcnow() - last_updated
+
         # check the data against database records and update as necessary
         for pair in new_data:
             # ignore blank data
@@ -62,7 +65,6 @@ def sync_district_data():
                 else:
                     # count did not change
                     # - make count and prev_count same only if last change was 1 day ago
-                    update_delta = datetime.utcnow() - last_updated
                     if update_delta.days >= 1:
                         district.prev_count = district.count
 
@@ -77,8 +79,11 @@ def sync_district_data():
 
         logger.debug(f"Has updated = {has_updated}")
         if has_updated:
-            # set last updated time to now
-            Meta.set_last_district_sync()
+            # set last updated time to now if more than 24hrs
+            # the 24hrs constant window helps to better calculate new_count - prev_count
+            if update_delta.days >= 1:
+                Meta.set_last_district_sync()
+                logger.info("Updated last sync time")
             logger.info("District sync complete (fetched new data)")
             return
         logger.info("District sync complete (already up-to-date)")

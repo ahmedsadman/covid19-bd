@@ -2,6 +2,8 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
+> URGENT NOTICE: This API is hosted on a free Heroku server. My free monthly usage limits is running out every month. I can't afford to buy a server for this. So I have decided to occassionally disable the web service to save some minutes. All API consumers are requested to cache the last successful response.
+
 This is a public REST API for accessing district-wise data and daily stats for Covid-19 in Bangladesh. This data is periodically pulled from the IEDCR reports, which is generally published after evening in Bangladesh (UTC+6) time. Stats are pulled from official government website for Corona.
 
 ## Usage Permissions
@@ -9,6 +11,10 @@ This is a public REST API for accessing district-wise data and daily stats for C
 As it is public API, you're free to use it for your projects. In your work, you must explicitly provide credits and also a link to this repository. For more detailed information please check LICENSE file.
 
 ## Documentation
+
+### Caching
+
+Developers should cache the last successful response. Because the server will be occassionally disabled to save minutes of free-tier Heroku dyno.
 
 ### Stats
 

@@ -2,7 +2,7 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-> URGENT NOTICE: This API is hosted on a free Heroku server. My free monthly usage limits is running out every month. I can't afford to buy a server for this. So I have decided to occassionally disable the web service to save some minutes. All API consumers are requested to cache the last successful response.
+> URGENT NOTICE: I need your support to keep the project alive. If you're interested, please jump to Donate section at the end.
 
 This is a public REST API for accessing district-wise data and daily stats for Covid-19 in Bangladesh. This data is periodically pulled from the IEDCR reports, which is generally published after evening in Bangladesh (UTC+6) time. Stats are pulled from official government website for Corona.
 
@@ -14,7 +14,7 @@ As it is public API, you're free to use it for your projects. In your work, you 
 
 ### Caching
 
-Developers should cache the last successful response. Because the server will be occassionally disabled to save minutes of free-tier Heroku dyno.
+Developers should cache the last successful response. Because the server will be occassionally disabled to save minutes of free-tier Heroku dyno. If I get enough support, I will be able to migrate to a premium server and thus eliminate this issue.
 
 ### Stats
 
@@ -80,3 +80,13 @@ More features such as area-wise report for Dhaka city might be added later
 Feel free to contribute and make the API feature-rich. For this to work, you have to have Python buildpack.
 
 Install the Python requirements `pip install -r requirements.txt` and you're good to go. You also have to set some environment variables in `.env` file in the root directory. Please check the `provider` module to know more about these variables.
+
+## Donate
+
+Currently this service is hosted in free servers. To provide uninterrupted service, I need to migrate to a premium plan and also buy a domain.
+
+Many of you are using this service. If you can contribute I will be grateful from the bottom of my heart. I have calculated that I would need around 8\$ per month to bear the server costs. Just click the button below to donate.
+
+<a href="https://www.buymeacoffee.com/ahmedsadman" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
+
+If you want to donate using some local payment gateways like bKash, just drop an email at ahmedsadman.211@gmail.com.

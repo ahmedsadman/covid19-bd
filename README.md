@@ -2,7 +2,7 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-> URGENT NOTICE: I need your support to keep the project alive. If you're interested, please jump to Donate section at the end.
+> **NOTICE: This project is no longer maintained**
 
 This is a public REST API for accessing district-wise data and daily stats for Covid-19 in Bangladesh. This data is periodically pulled from the IEDCR reports, which is generally published after evening in Bangladesh (UTC+6) time. Stats are pulled from official government website for Corona.
 
